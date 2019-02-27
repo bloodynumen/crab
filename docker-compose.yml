@@ -1,0 +1,40 @@
+version: '3'
+services:
+  web:
+    image: nginx:alpine
+    volumes:
+      - "./services/nginx/etc/conf.d:/etc/nginx/conf.d/"
+      - "./services/nginx/log:/var/log/nginx"
+      - "./services/ssl:/etc/ssl"
+      - ${WEB_APPLICATIONS}:/var/www/html
+    ports:
+      - "80:80"
+      - "443:443"
+    command: /bin/sh -c "nginx -g 'daemon off;'"
+    restart: always
+    depends_on:
+      - php
+      - mysql
+  php:
+    image: nanoninja/php-fpm:${PHP_VERSION}
+    restart: always
+    volumes:
+      - "./services/php/etc/php.ini:/usr/local/etc/php/conf.d/php.ini"
+      - ${WEB_APPLICATIONS}:/var/www/html
+  composer:
+    image: "composer"
+    volumes:
+      - ${WEB_APPLICATIONS}:/app
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    container_name: ${MYSQL_HOST}
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3386:3306"
+    volumes:
+      - "./services/mysql/data:/var/lib/mysql"
