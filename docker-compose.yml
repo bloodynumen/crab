@@ -3,6 +3,7 @@ services:
   web:
     image: nginx:alpine
     volumes:
+      - "./services/nginx/etc/nginx.conf:/etc/nginx/nginx.conf"
       - "./services/nginx/etc/conf.d:/etc/nginx/conf.d/"
       - "./services/nginx/log:/var/log/nginx"
       - "./services/ssl:/etc/ssl"
@@ -19,8 +20,8 @@ services:
     image: nanoninja/php-fpm:${PHP_VERSION}
     restart: always
     volumes:
-      - "./services/php/etc/php.ini:/usr/local/etc/php/conf.d/php.ini"
-      - ${WEB_APPLICATIONS}:/var/www/html
+      - "./services/php/etc/:/usr/local/etc/"
+      - ${WEB_APPLICATIONS}:/var/www/html:cached
   composer:
     image: "composer"
     volumes:
